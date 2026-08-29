@@ -1,0 +1,662 @@
+<title>GA4 Ecommerce: Three Stories</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7;
+    --surface: #fcfcfb;
+    --text-primary: #0b0b0b;
+    --text-secondary: #52514e;
+    --muted: #898781;
+    --grid: #e1e0d9;
+    --axis: #c3c2b7;
+    --border: rgba(11,11,11,0.10);
+    --series-1: #2a78d6;
+    --series-2: #eb6834;
+    --series-3: #1baf7a;
+    --series-grey: #b5b3a9;
+    --good: #0ca30c;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --page: #0d0d0d;
+      --surface: #1a1a19;
+      --text-primary: #ffffff;
+      --text-secondary: #c3c2b7;
+      --muted: #898781;
+      --grid: #2c2c2a;
+      --axis: #383835;
+      --border: rgba(255,255,255,0.10);
+      --series-1: #3987e5;
+      --series-2: #d95926;
+      --series-3: #199e70;
+      --series-grey: #5c5a53;
+      --good: #0ca30c;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --page: #0d0d0d;
+    --surface: #1a1a19;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --muted: #898781;
+    --grid: #2c2c2a;
+    --axis: #383835;
+    --border: rgba(255,255,255,0.10);
+    --series-1: #3987e5;
+    --series-2: #d95926;
+    --series-3: #199e70;
+    --series-grey: #5c5a53;
+    --good: #0ca30c;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--page);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  .wrap {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: 48px 24px 96px;
+  }
+  header.hero {
+    margin-bottom: 40px;
+  }
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  h1 {
+    font-size: clamp(28px, 4vw, 38px);
+    line-height: 1.15;
+    margin: 0 0 12px;
+    text-wrap: balance;
+  }
+  .lede {
+    font-size: 16px;
+    color: var(--text-secondary);
+    max-width: 640px;
+    line-height: 1.55;
+  }
+  .scope-note {
+    margin-top: 18px;
+    padding: 12px 16px;
+    border-left: 3px solid var(--series-2);
+    background: color-mix(in srgb, var(--series-2) 8%, var(--surface));
+    font-size: 13px;
+    color: var(--text-secondary);
+    border-radius: 0 6px 6px 0;
+  }
+
+  section.story {
+    margin-top: 64px;
+    padding-top: 40px;
+    border-top: 1px solid var(--border);
+  }
+  .story-label {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--series-1);
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .story h2 {
+    font-size: 24px;
+    margin: 0 0 8px;
+  }
+  .story .story-sub {
+    color: var(--text-secondary);
+    font-size: 14.5px;
+    max-width: 620px;
+    line-height: 1.5;
+    margin-bottom: 28px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    margin-bottom: 24px;
+  }
+  .card h3 {
+    font-size: 15px;
+    margin: 0 0 2px;
+  }
+  .card .card-note {
+    font-size: 12.5px;
+    color: var(--muted);
+    margin-bottom: 18px;
+  }
+
+  .bar-row { display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+  .bar-label { width: 210px; flex-shrink: 0; font-size: 13px; color: var(--text-secondary); text-align: right; }
+  .bar-track { flex: 1; height: 22px; background: var(--grid); border-radius: 4px; overflow: hidden; }
+  .bar-fill { height: 100%; background: var(--series-1); border-radius: 4px; }
+  .bar-value { width: 82px; flex-shrink: 0; font-size: 13px; font-variant-numeric: tabular-nums; color: var(--text-primary); font-weight: 600; }
+
+  svg { display: block; max-width: 100%; height: auto; }
+  .axis-line { stroke: var(--axis); stroke-width: 1; }
+  .grid-line { stroke: var(--grid); stroke-width: 1; }
+  .axis-label { fill: var(--muted); font-size: 11px; }
+  .axis-title { fill: var(--text-secondary); font-size: 11.5px; font-weight: 600; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: 16px; margin: 4px 0 18px; }
+  .legend-item { display: flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--text-secondary); }
+  .legend-swatch { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+
+  .tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--text-primary);
+    color: var(--page);
+    font-size: 12px;
+    padding: 7px 10px;
+    border-radius: 6px;
+    line-height: 1.4;
+    opacity: 0;
+    transform: translate(-50%, -100%);
+    transition: opacity 0.08s;
+    white-space: nowrap;
+    z-index: 5;
+  }
+  .chart-wrap { position: relative; overflow-x: auto; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 600; font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.03em; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .table-wrap { overflow-x: auto; }
+
+  .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .stat-tile { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 16px; }
+  .stat-tile .stat-label { font-size: 11.5px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 6px; }
+  .stat-tile .stat-value { font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .stat-tile .stat-sub { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+
+  .insight-box {
+    background: color-mix(in srgb, var(--series-2) 10%, var(--surface));
+    border: 1px solid color-mix(in srgb, var(--series-2) 30%, var(--border));
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin-top: 18px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--text-primary);
+  }
+  .insight-box .insight-label {
+    font-size: 11.5px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--series-2);
+    margin-bottom: 8px;
+  }
+  .insight-box ul { margin: 8px 0 0; padding-left: 20px; }
+  .insight-box li { margin-bottom: 4px; }
+
+  .extreme-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 20px; }
+  @media (max-width: 560px) { .extreme-pair { grid-template-columns: 1fr; } }
+  .extreme-card { border: 1px solid var(--border); border-radius: 10px; padding: 16px; background: var(--surface); }
+  .extreme-card .ex-label { font-size: 11.5px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted); margin-bottom: 6px; }
+  .extreme-card .ex-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .extreme-card .ex-stat { font-size: 13px; color: var(--text-secondary); }
+
+  footer.summary {
+    margin-top: 64px;
+    padding: 32px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  footer.summary h2 { font-size: 20px; margin: 0 0 16px; }
+  footer.summary ol { padding-left: 20px; margin: 0; }
+  footer.summary li { margin-bottom: 14px; line-height: 1.6; font-size: 14.5px; }
+  footer.summary li b { color: var(--series-1); }
+
+  .caveat {
+    margin-top: 36px;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+    border-top: 1px solid var(--border);
+    padding-top: 16px;
+  }
+</style>
+
+<div class="wrap">
+  <header class="hero">
+    <div class="eyebrow">GA4 Demo Ecommerce &middot; BigQuery Public Dataset &middot; Nov 2020 &ndash; Jan 2021</div>
+    <h1>Where the conversion problem actually lives</h1>
+    <p class="lede">Three independent cuts of the same 92-day window &mdash; by acquisition channel, by product, and by new-vs-returning user &mdash; each isolating a different piece of the same underlying issue.</p>
+    <div class="scope-note">All figures below come from the <code>bigquery-public-data.ga4_obfuscated_sample_ecommerce</code> public dataset. This is a separate, unrelated dataset from the GA4 Demo Account UI exploration used elsewhere in this project &mdash; the two are not reconciled. No ad-spend or cost data exists in this dataset, so nothing here should be read as ROI, ROAS, or profit.</div>
+  </header>
+
+  <section class="story" id="story-channel">
+    <div class="story-label">Story One</div>
+    <h2>Acquisition Channel Performance</h2>
+    <p class="story-sub">If one acquisition channel converted far worse than the rest, the fix would be to change the media mix. That's not what the data shows.</p>
+
+    <div class="card">
+      <h3>Purchase revenue by acquisition channel</h3>
+      <div class="card-note">First-touch attribution &middot; 7 channels with reliable sample size &middot; a "(data deleted) / (data deleted)" row was excluded as GA4 privacy-threshold noise</div>
+      <div id="channel-revenue-chart"></div>
+    </div>
+
+    <div class="card">
+      <h3>Channel conversion rate vs. volume</h3>
+      <div class="card-note">x = users who viewed a product via that channel &middot; y = share of those viewers who purchased anything (not necessarily the item they viewed)</div>
+      <div class="chart-wrap"><svg id="channel-scatter" viewBox="0 0 860 320"></svg></div>
+    </div>
+
+    <div class="insight-box">
+      <div class="insight-label">What this rules out</div>
+      Six of the seven channels cluster tightly between <b>6.63% and 7.19%</b> &mdash; no meaningful difference between paid search, organic search, direct visits, or referral. The one outlier is <b>shop.googlemerchandisestore at 8.96%</b>, noticeably higher than the rest. That's explainable rather than mysterious: this "channel" is effectively the store's own domain, so anyone arriving this way has already navigated straight into the shop &mdash; a small, high-intent, self-selected slice of traffic rather than a real acquisition channel in the usual sense. Outside that one exception, the acquisition mix itself is not the problem: whatever is suppressing conversion has to be happening after the click, not before it.
+    </div>
+  </section>
+
+  <section class="story" id="story-product">
+    <div class="story-label">Story Two</div>
+    <h2>Product Portfolio Analysis</h2>
+    <p class="story-sub">Split every product into four groups by whether its traffic and its conversion rate sit above or below the site-wide median. The split is computed from the full catalog, not cherry-picked examples.</p>
+
+    <div class="stat-grid" id="cluster-stats"></div>
+
+    <div class="card">
+      <h3>View traffic vs. conversion rate, all 413 products</h3>
+      <div class="card-note">x-axis is logarithmic (traffic spans 30&ndash;14,713 views) &middot; same-item conversion: viewers of a product who bought that exact product</div>
+      <div class="legend" id="product-legend"></div>
+      <div class="chart-wrap"><svg id="product-scatter" viewBox="0 0 900 480"></svg></div>
+    </div>
+
+    <div class="extreme-pair" id="extremes"></div>
+
+    <div class="insight-box">
+      <div class="insight-label">Reading story one and two together</div>
+      Site-wide, 6.6%&ndash;9% of viewers from every channel go on to buy <i>something</i>. But on a same-item basis, the 157 highest-traffic products &mdash; the ones actually absorbing most of that channel traffic &mdash; convert at just 0.7% on average. Users aren't leaving empty-handed; they're leaving the product page they arrived on. That points at the product page and cross-sell experience, not the acquisition channel, as where the leak is.
+    </div>
+  </section>
+
+  <section class="story" id="story-funnel">
+    <div class="story-label">Story Three</div>
+    <h2>New vs. Returning User Journeys</h2>
+    <p class="story-sub">Indexed to 100 at view_item so the two cohorts' shapes are comparable despite very different volumes.</p>
+
+    <div class="stat-grid" id="funnel-stats"></div>
+
+    <div class="card">
+      <h3>Funnel shape: new vs. returning users</h3>
+      <div class="card-note">Each segment labeled with its step-over-step drop &middot; indexed, not absolute counts</div>
+      <div class="legend" id="funnel-legend"></div>
+      <div class="chart-wrap"><svg id="funnel-chart" viewBox="0 0 860 340"></svg></div>
+    </div>
+
+    <div class="table-wrap card">
+      <h3>Step-level counts</h3>
+      <div class="card-note">Real users per step, new vs. returning (92-day window)</div>
+      <table id="funnel-table"></table>
+    </div>
+
+    <div class="insight-box">
+      <div class="insight-label">The step that doesn't fit common sense</div>
+      Most of this funnel behaves exactly as expected: people browse without buying, then thin out further while comparison-shopping before checkout. The step worth scrutinizing is the last one &mdash; <b>begin_checkout &rarr; purchase</b>. Once someone has already committed to checking out, common sense says most should finish, but a large share of both cohorts don't. This dataset can't say why on its own, but it raises real questions worth testing: is the checkout form asking for too much? Does tax/shipping added at the last step create sticker shock? Is there a technical failure point in the flow? This is a hypothesis for follow-up research (session recordings, checkout-abandonment surveys), not a conclusion the data proves by itself.
+      <ul id="funnel-drop-list"></ul>
+    </div>
+  </section>
+
+  <footer class="summary">
+    <h2>Putting the three stories together</h2>
+    <ol>
+      <li><b>Acquisition is not the problem.</b> Every real channel converts within a tight 6.6%&ndash;9% band, so redirecting budget between channels would not move the needle.</li>
+      <li><b>The leak is concentrated in specific, identifiable products.</b> 157 of 413 products absorb 76% of all product-page traffic but convert at under 1% on a same-item basis, while a large "hidden gem" group of lower-traffic products converts 7x better &mdash; these 157 SKUs are a short, actionable list for page-level optimization.</li>
+      <li><b>Checkout itself has a disproportionate drop, for new and returning users alike.</b> The biggest unexplained loss isn't at the top of the funnel &mdash; it's after a user has already decided to check out, which points at friction in the checkout flow rather than in product interest.</li>
+    </ol>
+  </footer>
+
+  <div class="caveat">
+    Data source: <code>bigquery-public-data.ga4_obfuscated_sample_ecommerce.events_*</code>, Nov 1, 2020 &ndash; Jan 31, 2021 (92 days). Users, purchasers, and conversion rates are computed at the distinct <code>user_pseudo_id</code> level. Channel attribution is first-touch (source/medium of each user's earliest event in the window). Product conversion is same-item (viewed and purchased the identical item); channel conversion is any-purchase. This dataset is unrelated to the GA4 Demo Account exploration used elsewhere in this project and the two are not reconciled. No cost or ad-spend data exists here, so nothing above should be read as ROI, ROAS, or profit.
+  </div>
+</div>
+
+<div class="tooltip" id="tip"></div>
+
+<script>
+const CHANNELS = [{"name": "google / organic", "revenue": 113013, "views": 20760, "purchasers": 1428, "conv": 0.0688}, {"name": "(direct) / (none)", "revenue": 83743, "views": 14491, "purchasers": 1011, "conv": 0.0698}, {"name": "(other) / (other)", "revenue": 52248, "views": 10262, "purchasers": 680, "conv": 0.0663}, {"name": "(other) / referral", "revenue": 33454, "views": 5758, "purchasers": 414, "conv": 0.0719}, {"name": "shop.googlemerchandisestore", "revenue": 28616, "views": 3684, "purchasers": 330, "conv": 0.0896}, {"name": "google / cpc", "revenue": 18321, "views": 3118, "purchasers": 218, "conv": 0.0699}, {"name": "(other) / organic", "revenue": 10760, "views": 1929, "purchasers": 129, "conv": 0.0669}];
+const PRODUCTS = [{"name": "Super G Unisex Joggers", "views": 14713, "purchases": 221, "conv": 0.015, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Zip Hoodie F/C", "views": 13869, "purchases": 218, "conv": 0.0157, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Navy Speckled Tee", "views": 13696, "purchases": 129, "conv": 0.0094, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "YouTube Icon Tee Grey", "views": 12696, "purchases": 58, "conv": 0.0046, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Campus Bike Eco Tee Navy", "views": 11339, "purchases": 41, "conv": 0.0036, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Land & Sea Cotton Cap", "views": 10796, "purchases": 104, "conv": 0.0096, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "YouTube Icon Tee Charcoal", "views": 10700, "purchases": 83, "conv": 0.0078, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "YouTube Leather Strap Hat Black", "views": 10543, "purchases": 67, "conv": 0.0064, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Land & Sea French Terry Sweatshirt", "views": 10201, "purchases": 28, "conv": 0.0027, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Android SM S/F18 Sticker Sheet", "views": 10007, "purchases": 96, "conv": 0.0096, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Android Large Removable Sticker Sheet", "views": 9918, "purchases": 50, "conv": 0.005, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google F/C Long Sleeve Tee Charcoal", "views": 9640, "purchases": 0, "conv": 0.0, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Women's Striped L/S", "views": 9541, "purchases": 0, "conv": 0.0, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "YouTube Twill Sandwich Cap Black", "views": 9519, "purchases": 87, "conv": 0.0091, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Sherpa Zip Hoodie Charcoal", "views": 9415, "purchases": 92, "conv": 0.0098, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Speckled Beanie Navy", "views": 9314, "purchases": 89, "conv": 0.0096, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Badge Heavyweight Pullover Black", "views": 9080, "purchases": 149, "conv": 0.0164, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Heather Green Speckled Tee", "views": 9052, "purchases": 65, "conv": 0.0072, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Crewneck Sweatshirt Navy", "views": 8754, "purchases": 186, "conv": 0.0212, "cluster": "Star Performer"}, {"name": "Google Heathered Pom Beanie", "views": 8661, "purchases": 171, "conv": 0.0197, "cluster": "Star Performer"}, {"name": "Google Small Standard Journal Navy", "views": 8208, "purchases": 47, "conv": 0.0057, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google F/C Long Sleeve Tee Ash", "views": 8184, "purchases": 0, "conv": 0.0, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Land & Sea Journal Set", "views": 8106, "purchases": 44, "conv": 0.0054, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Android Super Hero 3D Framed Art", "views": 8050, "purchases": 27, "conv": 0.0034, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Android Large Trace Journal Black", "views": 7988, "purchases": 22, "conv": 0.0028, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Leather Strap Hat Blue", "views": 7825, "purchases": 117, "conv": 0.015, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Utility Bag Grey", "views": 7812, "purchases": 60, "conv": 0.0077, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Crewneck Sweatshirt Green", "views": 7731, "purchases": 149, "conv": 0.0193, "cluster": "Star Performer"}, {"name": "Google Eco Tee Black", "views": 7683, "purchases": 0, "conv": 0.0, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Android Techie 3D Framed Art", "views": 7661, "purchases": 36, "conv": 0.0047, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Tee Yellow", "views": 7631, "purchases": 33, "conv": 0.0043, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Android Small Trace Journal Black", "views": 7510, "purchases": 14, "conv": 0.0019, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Blue Stojo Cup", "views": 7304, "purchases": 37, "conv": 0.0051, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Android Iconic Hat Black", "views": 7079, "purchases": 28, "conv": 0.004, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Tee Green", "views": 6928, "purchases": 17, "conv": 0.0025, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "YouTube Women's Favorite Tee White", "views": 6885, "purchases": 5, "conv": 0.0007, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Laptop Sleeve Charcoal", "views": 6861, "purchases": 12, "conv": 0.0017, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Android Iconic Hat Green", "views": 6818, "purchases": 25, "conv": 0.0037, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Land & Sea Nalgene Water Bottle", "views": 6782, "purchases": 52, "conv": 0.0077, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "YouTube Jotter Task Pad", "views": 6731, "purchases": 52, "conv": 0.0077, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Land & Sea Mug", "views": 6692, "purchases": 36, "conv": 0.0054, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Land & Sea Tech Taco", "views": 6670, "purchases": 23, "conv": 0.0034, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Leather Strap Hat Black", "views": 6544, "purchases": 34, "conv": 0.0052, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Android Iconic Crewneck Sweatshirt", "views": 6402, "purchases": 86, "conv": 0.0134, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Speckled Beanie Grey", "views": 6391, "purchases": 64, "conv": 0.01, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Red Speckled Tee", "views": 6346, "purchases": 134, "conv": 0.0211, "cluster": "Star Performer"}, {"name": "Android Garden Tee Orange", "views": 6285, "purchases": 27, "conv": 0.0043, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Land & Sea Women's Eco Tee", "views": 6232, "purchases": 10, "conv": 0.0016, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Android Iconic Beanie", "views": 6161, "purchases": 26, "conv": 0.0042, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Android Iconic Hat White", "views": 5931, "purchases": 23, "conv": 0.0039, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "YouTube Small Sticker Sheet", "views": 5806, "purchases": 12, "conv": 0.0021, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Sherpa Zip Hoodie Navy", "views": 5767, "purchases": 73, "conv": 0.0127, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Land & Sea Unisex Tee", "views": 5696, "purchases": 0, "conv": 0.0, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Noogler Android Figure", "views": 5633, "purchases": 98, "conv": 0.0174, "cluster": "Star Performer"}, {"name": "Google Large Tote White", "views": 5578, "purchases": 74, "conv": 0.0133, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "YouTube Standards Zip Hoodie Black", "views": 5391, "purchases": 15, "conv": 0.0028, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "YouTube Transmission Journal Red", "views": 5228, "purchases": 18, "conv": 0.0034, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Glass Bottle", "views": 5211, "purchases": 84, "conv": 0.0161, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Beekeepers Tee Mint", "views": 5207, "purchases": 46, "conv": 0.0088, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Land & Sea Tote Bag", "views": 5116, "purchases": 35, "conv": 0.0068, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Campus Bike Tote Navy", "views": 5038, "purchases": 51, "conv": 0.0101, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Campus Bike Bottle", "views": 5020, "purchases": 33, "conv": 0.0066, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Flat Front Bag Grey", "views": 4971, "purchases": 59, "conv": 0.0119, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Stan and Friends Tee Green", "views": 4962, "purchases": 38, "conv": 0.0077, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "YouTube Crew Socks", "views": 4958, "purchases": 41, "conv": 0.0083, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Utility BackPack", "views": 4943, "purchases": 38, "conv": 0.0077, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Cork Base Tumbler", "views": 4904, "purchases": 34, "conv": 0.0069, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "YouTube Play Mug", "views": 4861, "purchases": 49, "conv": 0.0101, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Keyboard DOT Sticker", "views": 4787, "purchases": 60, "conv": 0.0125, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Dino Game Tee", "views": 4742, "purchases": 83, "conv": 0.0175, "cluster": "Star Performer"}, {"name": "Google Women's Microfleece Jacket Black", "views": 4699, "purchases": 33, "conv": 0.007, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Android Iconic Glass Bottle Green", "views": 4680, "purchases": 16, "conv": 0.0034, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "YouTube Iconic Play Pin", "views": 4674, "purchases": 27, "conv": 0.0058, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Crew Socks", "views": 4587, "purchases": 129, "conv": 0.0281, "cluster": "Star Performer"}, {"name": "Google Men's Tech Fleece Grey", "views": 4571, "purchases": 90, "conv": 0.0197, "cluster": "Star Performer"}, {"name": "Google Confetti Accessory Pouch", "views": 4549, "purchases": 14, "conv": 0.0031, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Tech Taco", "views": 4542, "purchases": 13, "conv": 0.0029, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Stainless Bent Straw/Cleaner", "views": 4499, "purchases": 13, "conv": 0.0029, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "#IamRemarkable Water Bottle", "views": 4489, "purchases": 22, "conv": 0.0049, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Mesh Bag Red", "views": 4478, "purchases": 13, "conv": 0.0029, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Mural Bottle", "views": 4381, "purchases": 25, "conv": 0.0057, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Cup Cap Tumbler Grey", "views": 4349, "purchases": 22, "conv": 0.0051, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Campus Bike Carry Pouch", "views": 4299, "purchases": 23, "conv": 0.0054, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Incognito Messenger Bag", "views": 4296, "purchases": 12, "conv": 0.0028, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Mesh Bag Blue", "views": 4295, "purchases": 32, "conv": 0.0075, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Android Iconic Mug Gray", "views": 4295, "purchases": 30, "conv": 0.007, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Tudes Recycled Tee", "views": 4256, "purchases": 21, "conv": 0.0049, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Mural Food Container", "views": 4244, "purchases": 13, "conv": 0.0031, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Phone Stand Bamboo", "views": 4218, "purchases": 45, "conv": 0.0107, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Woodtop Bottle Black", "views": 4168, "purchases": 56, "conv": 0.0134, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Mouse Pad Navy", "views": 4108, "purchases": 25, "conv": 0.0061, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Women's Puff Jacket Black", "views": 4009, "purchases": 45, "conv": 0.0112, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Bottle Cleaner", "views": 3905, "purchases": 4, "conv": 0.001, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Jotter Task Pad", "views": 3839, "purchases": 11, "conv": 0.0029, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Men's Puff Jacket Black", "views": 3773, "purchases": 55, "conv": 0.0146, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Small Cable Organizer Blue", "views": 3757, "purchases": 20, "conv": 0.0053, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Women's Grid Zip-Up", "views": 3753, "purchases": 49, "conv": 0.0131, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "#IamRemarkable Ladies T-Shirt", "views": 3643, "purchases": 25, "conv": 0.0069, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google See-No Hear-No Set", "views": 3584, "purchases": 41, "conv": 0.0114, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Android Jotter Task Pad", "views": 3458, "purchases": 12, "conv": 0.0035, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Android Iconic Pin", "views": 3373, "purchases": 18, "conv": 0.0053, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google LoveHandle Black", "views": 3266, "purchases": 30, "conv": 0.0092, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Toddler FC Tee Charcoal", "views": 3229, "purchases": 38, "conv": 0.0118, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Black Tee", "views": 3168, "purchases": 0, "conv": 0.0, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Laptop and Cell Phone Stickers", "views": 3136, "purchases": 136, "conv": 0.0434, "cluster": "Star Performer"}, {"name": "Google Pocket Tee Grey", "views": 3107, "purchases": 0, "conv": 0.0, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Cloud  Unisex Zip Hoodie", "views": 3087, "purchases": 0, "conv": 0.0, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Unisex Pride Eco-Tee Black", "views": 3018, "purchases": 0, "conv": 0.0, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "YouTube 25 oz Gear Cap Bottle Black", "views": 3017, "purchases": 16, "conv": 0.0053, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Metallic Notebook Set", "views": 2992, "purchases": 117, "conv": 0.0391, "cluster": "Star Performer"}, {"name": "Google Thermal Tumbler Navy", "views": 2975, "purchases": 74, "conv": 0.0249, "cluster": "Star Performer"}, {"name": "Google Large Standard Journal Grey", "views": 2963, "purchases": 66, "conv": 0.0223, "cluster": "Star Performer"}, {"name": "#IamRemarkable Unisex T-Shirt", "views": 2942, "purchases": 47, "conv": 0.016, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Youth FC Tee Charcoal", "views": 2937, "purchases": 29, "conv": 0.0099, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Black Cork Journal", "views": 2907, "purchases": 72, "conv": 0.0248, "cluster": "Star Performer"}, {"name": "Google Camp Mug Ivory", "views": 2904, "purchases": 178, "conv": 0.0613, "cluster": "Star Performer"}, {"name": "Google Cloud Pen", "views": 2850, "purchases": 42, "conv": 0.0147, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Perk Thermal Tumbler", "views": 2841, "purchases": 101, "conv": 0.0356, "cluster": "Star Performer"}, {"name": "Google Crewneck Sweatshirt Grey", "views": 2839, "purchases": 76, "conv": 0.0268, "cluster": "Star Performer"}, {"name": "Google Super G Tumbler (Red Lid)", "views": 2838, "purchases": 39, "conv": 0.0137, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Youth FC Longsleeve Charcoal", "views": 2834, "purchases": 23, "conv": 0.0081, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Pen White", "views": 2823, "purchases": 102, "conv": 0.0361, "cluster": "Star Performer"}, {"name": "Google Recycled Pen Black", "views": 2777, "purchases": 39, "conv": 0.014, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Super G Tumbler (Blue Lid)", "views": 2755, "purchases": 19, "conv": 0.0069, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Split Seam Tee Olive", "views": 2725, "purchases": 31, "conv": 0.0114, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Snowflake Android Cardboard Sculpture", "views": 2706, "purchases": 23, "conv": 0.0085, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Clear Pen 4-Pack", "views": 2702, "purchases": 138, "conv": 0.0511, "cluster": "Star Performer"}, {"name": "Google Emoji Sticker Pack", "views": 2677, "purchases": 51, "conv": 0.0191, "cluster": "Star Performer"}, {"name": "Google Cotopaxi Shell", "views": 2656, "purchases": 71, "conv": 0.0267, "cluster": "Star Performer"}, {"name": "Android Pocket Onesie Navy", "views": 2601, "purchases": 48, "conv": 0.0185, "cluster": "Star Performer"}, {"name": "Google Cambridge Campus Sticker", "views": 2572, "purchases": 18, "conv": 0.007, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Confetti Slim Task Pad", "views": 2490, "purchases": 23, "conv": 0.0092, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Mini Kick Ball", "views": 2481, "purchases": 36, "conv": 0.0145, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google NYC Campus Sticker", "views": 2475, "purchases": 42, "conv": 0.017, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "#IamRemarkable Unisex Hoodie", "views": 2451, "purchases": 28, "conv": 0.0114, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Cambridge Campus Zip Hoodie", "views": 2424, "purchases": 16, "conv": 0.0066, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Canteen Bottle Black", "views": 2421, "purchases": 114, "conv": 0.0471, "cluster": "Star Performer"}, {"name": "Google Aluminum Bottle Red", "views": 2407, "purchases": 21, "conv": 0.0087, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google NYC Campus Bottle", "views": 2342, "purchases": 33, "conv": 0.0141, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Women's Eco Tee Black", "views": 2291, "purchases": 1, "conv": 0.0004, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Android Buoy Bottle", "views": 2282, "purchases": 52, "conv": 0.0228, "cluster": "Star Performer"}, {"name": "Candy Cane Android Cardboard Sculpture", "views": 2275, "purchases": 1, "conv": 0.0004, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google NYC Campus Mug", "views": 2207, "purchases": 91, "conv": 0.0412, "cluster": "Star Performer"}, {"name": "Google Infant Hero Tee Olive", "views": 2200, "purchases": 39, "conv": 0.0177, "cluster": "Star Performer"}, {"name": "Google Camp Mug Gray", "views": 2183, "purchases": 84, "conv": 0.0385, "cluster": "Star Performer"}, {"name": "Google Cambridge Campus Mug", "views": 2170, "purchases": 44, "conv": 0.0203, "cluster": "Star Performer"}, {"name": "Google Cambridge Campus Bottle", "views": 2164, "purchases": 7, "conv": 0.0032, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Toddler Tee White", "views": 2163, "purchases": 27, "conv": 0.0125, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google NYC Campus Lapel Pin", "views": 2148, "purchases": 24, "conv": 0.0112, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Cambridge Campus Unisex Tee", "views": 2144, "purchases": 13, "conv": 0.0061, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Cambridge Campus Ladies Tee", "views": 2141, "purchases": 6, "conv": 0.0028, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Crew Combed Cotton Sock", "views": 2131, "purchases": 82, "conv": 0.0385, "cluster": "Star Performer"}, {"name": "Google Cambridge Campus Tote", "views": 2113, "purchases": 4, "conv": 0.0019, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Color Block Notebook", "views": 2111, "purchases": 17, "conv": 0.0081, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Bear Baby Blanket Beige", "views": 2094, "purchases": 33, "conv": 0.0158, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Bot (Multicolored)", "views": 2084, "purchases": 36, "conv": 0.0173, "cluster": "Star Performer"}, {"name": "Google Light Pen Blue", "views": 2060, "purchases": 83, "conv": 0.0403, "cluster": "Star Performer"}, {"name": "Google 24oz Ring Bottle Blue", "views": 2016, "purchases": 43, "conv": 0.0213, "cluster": "Star Performer"}, {"name": "Google Decal", "views": 2014, "purchases": 63, "conv": 0.0313, "cluster": "Star Performer"}, {"name": "Google Sunglasses", "views": 1990, "purchases": 68, "conv": 0.0342, "cluster": "Star Performer"}, {"name": "Google Campus Bike", "views": 1986, "purchases": 96, "conv": 0.0483, "cluster": "Star Performer"}, {"name": "Google Youth Hero Tee Grey", "views": 1982, "purchases": 33, "conv": 0.0166, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Chrome Dino Light Up Water Bottle", "views": 1973, "purchases": 7, "conv": 0.0035, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Toddler FC Zip Hoodie", "views": 1973, "purchases": 73, "conv": 0.037, "cluster": "Star Performer"}, {"name": "Supernatural Paper Backpack", "views": 1937, "purchases": 5, "conv": 0.0026, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Maze Pen", "views": 1906, "purchases": 46, "conv": 0.0241, "cluster": "Star Performer"}, {"name": "Google Hemp Tote", "views": 1840, "purchases": 49, "conv": 0.0266, "cluster": "Star Performer"}, {"name": "Google Mural Sticker Sheet", "views": 1807, "purchases": 66, "conv": 0.0365, "cluster": "Star Performer"}, {"name": "Google Mountain View Tee Blue", "views": 1794, "purchases": 0, "conv": 0.0, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "#IamRemarkable Journal", "views": 1757, "purchases": 35, "conv": 0.0199, "cluster": "Star Performer"}, {"name": "Flamingo and Friends Tee Blue", "views": 1754, "purchases": 26, "conv": 0.0148, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Pen Citron", "views": 1729, "purchases": 50, "conv": 0.0289, "cluster": "Star Performer"}, {"name": "Android Iconic Sticker Sheet", "views": 1717, "purchases": 14, "conv": 0.0082, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Toddler Hero Tee Black", "views": 1712, "purchases": 22, "conv": 0.0129, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Men's Tech Fleece Vest Charcoal", "views": 1707, "purchases": 59, "conv": 0.0346, "cluster": "Star Performer"}, {"name": "Google Campus Bike Grid Task Pad", "views": 1702, "purchases": 22, "conv": 0.0129, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Tee Blue", "views": 1669, "purchases": 16, "conv": 0.0096, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Android Iconic 4\" Decal", "views": 1663, "purchases": 17, "conv": 0.0102, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Youth Hero Tee Maroon", "views": 1654, "purchases": 22, "conv": 0.0133, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Shoreline Water Bottle", "views": 1631, "purchases": 10, "conv": 0.0061, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Youth Badge Tee Navy", "views": 1613, "purchases": 24, "conv": 0.0149, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Supernatural Paper Lunch Sack", "views": 1599, "purchases": 13, "conv": 0.0081, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Youth Badge Tee Olive", "views": 1574, "purchases": 30, "conv": 0.0191, "cluster": "Star Performer"}, {"name": "Android Pocket Toddler Tee Navy", "views": 1571, "purchases": 27, "conv": 0.0172, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Tee Red", "views": 1533, "purchases": 22, "conv": 0.0144, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Tee Dark Blue", "views": 1528, "purchases": 0, "conv": 0.0, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Clear Framed Yellow Shades", "views": 1519, "purchases": 45, "conv": 0.0296, "cluster": "Star Performer"}, {"name": "Google ApPeel Journal Red", "views": 1487, "purchases": 22, "conv": 0.0148, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Pride Sticker", "views": 1482, "purchases": 45, "conv": 0.0304, "cluster": "Star Performer"}, {"name": "Google Infant Charcoal Onesie", "views": 1446, "purchases": 45, "conv": 0.0311, "cluster": "Star Performer"}, {"name": "Supernatural Paper Tote", "views": 1427, "purchases": 13, "conv": 0.0091, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Light Pen Red", "views": 1426, "purchases": 69, "conv": 0.0484, "cluster": "Star Performer"}, {"name": "Google Incognito Zip Pack", "views": 1419, "purchases": 25, "conv": 0.0176, "cluster": "Star Performer"}, {"name": "Google Crew Striped Athletic Sock", "views": 1419, "purchases": 56, "conv": 0.0395, "cluster": "Star Performer"}, {"name": "Google Tracking Hat", "views": 1414, "purchases": 0, "conv": 0.0, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Confetti Task Pad", "views": 1384, "purchases": 23, "conv": 0.0166, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Men's Softshell Moss", "views": 1377, "purchases": 30, "conv": 0.0218, "cluster": "Star Performer"}, {"name": "Google Toddler Hero Tee Olive", "views": 1355, "purchases": 16, "conv": 0.0118, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Recycled Pen Green", "views": 1339, "purchases": 11, "conv": 0.0082, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Felt Luggage Tag", "views": 1324, "purchases": 20, "conv": 0.0151, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google KeepCup", "views": 1308, "purchases": 42, "conv": 0.0321, "cluster": "Star Performer"}, {"name": "Google Tee F/C Black", "views": 1295, "purchases": 7, "conv": 0.0054, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Cloth & Pouch Black", "views": 1291, "purchases": 8, "conv": 0.0062, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Cork Card Holder", "views": 1277, "purchases": 25, "conv": 0.0196, "cluster": "Star Performer"}, {"name": "Google Pen Bright Blue", "views": 1273, "purchases": 48, "conv": 0.0377, "cluster": "Star Performer"}, {"name": "Google Cork Pencil Pouch", "views": 1262, "purchases": 22, "conv": 0.0174, "cluster": "Star Performer"}, {"name": "Google Tee Grey", "views": 1257, "purchases": 16, "conv": 0.0127, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Cork Passport Holder", "views": 1245, "purchases": 21, "conv": 0.0169, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Cork Tablet Case", "views": 1174, "purchases": 6, "conv": 0.0051, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Mountain View Campus Unisex Tee", "views": 1166, "purchases": 7, "conv": 0.006, "cluster": "Traffic-Heavy Low-Convert"}, {"name": "Google Cork Key Ring", "views": 1157, "purchases": 15, "conv": 0.013, "cluster": "Long-tail Underperformer"}, {"name": "Google Knit Blanket", "views": 1143, "purchases": 14, "conv": 0.0122, "cluster": "Long-tail Underperformer"}, {"name": "Google Tonal Tee Spearmint", "views": 1134, "purchases": 2, "conv": 0.0018, "cluster": "Long-tail Underperformer"}, {"name": "Google Premium Sunglasses", "views": 1130, "purchases": 31, "conv": 0.0274, "cluster": "Hidden Gem"}, {"name": "Google Light Pen Green", "views": 1111, "purchases": 61, "conv": 0.0549, "cluster": "Hidden Gem"}, {"name": "Google Youth FC Zip Hoodie", "views": 1111, "purchases": 6, "conv": 0.0054, "cluster": "Long-tail Underperformer"}, {"name": "Android Iconic Socks", "views": 1108, "purchases": 20, "conv": 0.0181, "cluster": "Hidden Gem"}, {"name": "Google Tonal Tee Coral", "views": 1104, "purchases": 7, "conv": 0.0063, "cluster": "Long-tail Underperformer"}, {"name": "Google Mural Sticky Note Pad", "views": 1087, "purchases": 46, "conv": 0.0423, "cluster": "Hidden Gem"}, {"name": "Google Mural Socks", "views": 1082, "purchases": 38, "conv": 0.0351, "cluster": "Hidden Gem"}, {"name": "Stan and Friends Onesie Green", "views": 1055, "purchases": 24, "conv": 0.0227, "cluster": "Hidden Gem"}, {"name": "Google Red Kids Sunglasses", "views": 1052, "purchases": 23, "conv": 0.0219, "cluster": "Hidden Gem"}, {"name": "Android Pocket Tee Navy", "views": 1049, "purchases": 53, "conv": 0.0505, "cluster": "Hidden Gem"}, {"name": "Google Frisbee", "views": 1020, "purchases": 22, "conv": 0.0216, "cluster": "Hidden Gem"}, {"name": "Google Pen Grey", "views": 1014, "purchases": 30, "conv": 0.0296, "cluster": "Hidden Gem"}, {"name": "Google Black Cloud Zip Hoodie", "views": 1002, "purchases": 46, "conv": 0.0459, "cluster": "Hidden Gem"}, {"name": "Stainless Straight Straw/Cleaner", "views": 1002, "purchases": 20, "conv": 0.02, "cluster": "Hidden Gem"}, {"name": "Google Campus Bike Corkbase Mug Blue", "views": 985, "purchases": 49, "conv": 0.0497, "cluster": "Hidden Gem"}, {"name": "Google Packable Bag Black", "views": 978, "purchases": 50, "conv": 0.0511, "cluster": "Hidden Gem"}, {"name": "Google Pen Grass Green", "views": 970, "purchases": 28, "conv": 0.0289, "cluster": "Hidden Gem"}, {"name": "White Google Shoreline Bottle", "views": 955, "purchases": 20, "conv": 0.0209, "cluster": "Hidden Gem"}, {"name": "Google Raincoat Navy", "views": 944, "purchases": 24, "conv": 0.0254, "cluster": "Hidden Gem"}, {"name": "Google Mens Microfleece Jacket Black", "views": 942, "purchases": 9, "conv": 0.0096, "cluster": "Long-tail Underperformer"}, {"name": "Android Pocket Onesie White", "views": 934, "purchases": 1, "conv": 0.0011, "cluster": "Long-tail Underperformer"}, {"name": "Google Women's Tech Fleece Vest Charcoal", "views": 928, "purchases": 22, "conv": 0.0237, "cluster": "Hidden Gem"}, {"name": "Google Youth F/C Pullover Hoodie", "views": 922, "purchases": 4, "conv": 0.0043, "cluster": "Long-tail Underperformer"}, {"name": "Google Confetti Pen White", "views": 912, "purchases": 22, "conv": 0.0241, "cluster": "Hidden Gem"}, {"name": "Google Incognito Flap Pack", "views": 905, "purchases": 6, "conv": 0.0066, "cluster": "Long-tail Underperformer"}, {"name": "Google Lightweight Crew Sweatshirt Grey", "views": 897, "purchases": 0, "conv": 0.0, "cluster": "Long-tail Underperformer"}, {"name": "#IamRemarkable Pen", "views": 896, "purchases": 5, "conv": 0.0056, "cluster": "Long-tail Underperformer"}, {"name": "Google Stylus Pen w/ LED Light", "views": 834, "purchases": 1, "conv": 0.0012, "cluster": "Long-tail Underperformer"}, {"name": "Google Campus Bike Mini Backpack", "views": 820, "purchases": 18, "conv": 0.022, "cluster": "Hidden Gem"}, {"name": "Google Blue Kids Sunglasses", "views": 812, "purchases": 39, "conv": 0.048, "cluster": "Hidden Gem"}, {"name": "Google Striped Penny Pouch", "views": 810, "purchases": 15, "conv": 0.0185, "cluster": "Hidden Gem"}, {"name": "Google Mountain View Campus Sticker", "views": 792, "purchases": 10, "conv": 0.0126, "cluster": "Long-tail Underperformer"}, {"name": "Android Iconic Bottle Black", "views": 786, "purchases": 1, "conv": 0.0013, "cluster": "Long-tail Underperformer"}, {"name": "Google NYC Campus Zip Hoodie", "views": 779, "purchases": 67, "conv": 0.086, "cluster": "Hidden Gem"}, {"name": "Google Mural Notebook", "views": 778, "purchases": 18, "conv": 0.0231, "cluster": "Hidden Gem"}, {"name": "Google Recycled Writing Set", "views": 771, "purchases": 47, "conv": 0.061, "cluster": "Hidden Gem"}, {"name": "Google Sunnyvale Campus Sticker", "views": 767, "purchases": 13, "conv": 0.0169, "cluster": "Long-tail Underperformer"}, {"name": "Google Mural Mug", "views": 763, "purchases": 41, "conv": 0.0537, "cluster": "Hidden Gem"}, {"name": "Google Men's Discovery Lt. Rain Shell", "views": 746, "purchases": 3, "conv": 0.004, "cluster": "Long-tail Underperformer"}, {"name": "Android Iconic Pen", "views": 744, "purchases": 23, "conv": 0.0309, "cluster": "Hidden Gem"}, {"name": "Google Incognito Dopp Kit V2", "views": 738, "purchases": 15, "conv": 0.0203, "cluster": "Hidden Gem"}, {"name": "Google Mountain View Campus Zip Hoodie", "views": 722, "purchases": 20, "conv": 0.0277, "cluster": "Hidden Gem"}, {"name": "Android Pocket Toddler Tee White", "views": 714, "purchases": 1, "conv": 0.0014, "cluster": "Long-tail Underperformer"}, {"name": "Google 16 oz Tumbler Blue", "views": 700, "purchases": 17, "conv": 0.0243, "cluster": "Hidden Gem"}, {"name": "Google Incognito Techpack V2", "views": 697, "purchases": 26, "conv": 0.0373, "cluster": "Hidden Gem"}, {"name": "Android Pocket Youth Tee Green", "views": 680, "purchases": 10, "conv": 0.0147, "cluster": "Long-tail Underperformer"}, {"name": "Google LA Campus Sticker", "views": 676, "purchases": 34, "conv": 0.0503, "cluster": "Hidden Gem"}, {"name": "Google Twill Cap Charcoal", "views": 676, "purchases": 30, "conv": 0.0444, "cluster": "Hidden Gem"}, {"name": "Google PNW Campus Sticker", "views": 675, "purchases": 9, "conv": 0.0133, "cluster": "Long-tail Underperformer"}, {"name": "Google Kids Playful Tee", "views": 674, "purchases": 0, "conv": 0.0, "cluster": "Long-tail Underperformer"}, {"name": "Google Seattle Campus Sticker", "views": 662, "purchases": 27, "conv": 0.0408, "cluster": "Hidden Gem"}, {"name": "Google Sunnyvale Campus Zip Hoodie", "views": 651, "purchases": 27, "conv": 0.0415, "cluster": "Hidden Gem"}, {"name": "Google Magnet", "views": 647, "purchases": 95, "conv": 0.1468, "cluster": "Hidden Gem"}, {"name": "Google Boulder Campus Sticker", "views": 640, "purchases": 21, "conv": 0.0328, "cluster": "Hidden Gem"}, {"name": "Google Felt Refillable Journal", "views": 640, "purchases": 26, "conv": 0.0406, "cluster": "Hidden Gem"}, {"name": "Google NYC Campus Unisex Tee", "views": 636, "purchases": 9, "conv": 0.0142, "cluster": "Long-tail Underperformer"}, {"name": "Android Iconic Backpack", "views": 634, "purchases": 7, "conv": 0.011, "cluster": "Long-tail Underperformer"}, {"name": "Google Jumbo Print Tee White", "views": 631, "purchases": 0, "conv": 0.0, "cluster": "Long-tail Underperformer"}, {"name": "Google Chrome Dinosaur Collectible", "views": 621, "purchases": 55, "conv": 0.0886, "cluster": "Hidden Gem"}, {"name": "Essential Canvas Tote", "views": 610, "purchases": 16, "conv": 0.0262, "cluster": "Hidden Gem"}, {"name": "Android Pocket Youth Tee Navy", "views": 601, "purchases": 11, "conv": 0.0183, "cluster": "Hidden Gem"}, {"name": "Google Bellevue Campus Sticker", "views": 591, "purchases": 7, "conv": 0.0118, "cluster": "Long-tail Underperformer"}, {"name": "Google Kirkland Campus Sticker", "views": 589, "purchases": 9, "conv": 0.0153, "cluster": "Long-tail Underperformer"}, {"name": "Google Women's Tech Fleece Grey", "views": 569, "purchases": 15, "conv": 0.0264, "cluster": "Hidden Gem"}, {"name": "Google Sherpa Vest Black", "views": 564, "purchases": 27, "conv": 0.0479, "cluster": "Hidden Gem"}, {"name": "Google Tee Mint Green", "views": 539, "purchases": 6, "conv": 0.0111, "cluster": "Long-tail Underperformer"}, {"name": "Google SF Campus Zip Hoodie", "views": 538, "purchases": 30, "conv": 0.0558, "cluster": "Hidden Gem"}, {"name": "Google Youth Jumbo Print Tee White", "views": 530, "purchases": 0, "conv": 0.0, "cluster": "Long-tail Underperformer"}, {"name": "Google NYC Campus Ladies Tee", "views": 525, "purchases": 24, "conv": 0.0457, "cluster": "Hidden Gem"}, {"name": "Google Clear Framed Gray Shades", "views": 520, "purchases": 39, "conv": 0.075, "cluster": "Hidden Gem"}, {"name": "Android Lumberjack Pin", "views": 519, "purchases": 26, "conv": 0.0501, "cluster": "Hidden Gem"}, {"name": "Google Sustainable Pencil Pouch", "views": 519, "purchases": 28, "conv": 0.0539, "cluster": "Hidden Gem"}, {"name": "Google Women's Black Tee", "views": 518, "purchases": 9, "conv": 0.0174, "cluster": "Hidden Gem"}, {"name": "Google Austin Campus Zip Hoodie", "views": 514, "purchases": 20, "conv": 0.0389, "cluster": "Hidden Gem"}, {"name": "Android Iconic Notebook", "views": 508, "purchases": 8, "conv": 0.0157, "cluster": "Long-tail Underperformer"}, {"name": "Google Chicago Campus Zip Hoodie", "views": 507, "purchases": 16, "conv": 0.0316, "cluster": "Hidden Gem"}, {"name": "Google Utensil Set", "views": 500, "purchases": 35, "conv": 0.07, "cluster": "Hidden Gem"}, {"name": "Google Soft Modal Scarf", "views": 495, "purchases": 33, "conv": 0.0667, "cluster": "Hidden Gem"}, {"name": "Google Sunnyvale Campus Mug", "views": 494, "purchases": 53, "conv": 0.1073, "cluster": "Hidden Gem"}, {"name": "Daddy Works at Google Book", "views": 487, "purchases": 41, "conv": 0.0842, "cluster": "Hidden Gem"}, {"name": "Android Puzzlebot v2", "views": 475, "purchases": 4, "conv": 0.0084, "cluster": "Long-tail Underperformer"}, {"name": "Google Women's Discovery Lt. Rain Shell", "views": 466, "purchases": 5, "conv": 0.0107, "cluster": "Long-tail Underperformer"}, {"name": "Google Seaport Tote", "views": 462, "purchases": 24, "conv": 0.0519, "cluster": "Hidden Gem"}, {"name": "Google Infant Hero Onesie Grey", "views": 461, "purchases": 22, "conv": 0.0477, "cluster": "Hidden Gem"}, {"name": "Google 24 oz Ring Bottle Red", "views": 460, "purchases": 27, "conv": 0.0587, "cluster": "Hidden Gem"}, {"name": "#IamRemarkable Lapel Pin", "views": 459, "purchases": 15, "conv": 0.0327, "cluster": "Hidden Gem"}, {"name": "Google Women's Softshell Moss", "views": 456, "purchases": 11, "conv": 0.0241, "cluster": "Hidden Gem"}, {"name": "Google Women's Kirkland Pullover", "views": 449, "purchases": 3, "conv": 0.0067, "cluster": "Long-tail Underperformer"}, {"name": "Google Clear Framed Blue Shades", "views": 448, "purchases": 49, "conv": 0.1094, "cluster": "Hidden Gem"}, {"name": "Google Incognito Laptop Organizer", "views": 445, "purchases": 15, "conv": 0.0337, "cluster": "Hidden Gem"}, {"name": "Google Boulder Campus Zip Hoodie", "views": 423, "purchases": 17, "conv": 0.0402, "cluster": "Hidden Gem"}, {"name": "Google Sunnyvale Campus Unisex Tee", "views": 420, "purchases": 17, "conv": 0.0405, "cluster": "Hidden Gem"}, {"name": "Google LA Campus Zip Hoodie", "views": 415, "purchases": 19, "conv": 0.0458, "cluster": "Hidden Gem"}, {"name": "Android Hipster Pin", "views": 405, "purchases": 9, "conv": 0.0222, "cluster": "Hidden Gem"}, {"name": "Google Mountain View Campus Ladies Tee", "views": 375, "purchases": 20, "conv": 0.0533, "cluster": "Hidden Gem"}, {"name": "Google Women's Pride Eco-Tee Black", "views": 372, "purchases": 11, "conv": 0.0296, "cluster": "Hidden Gem"}, {"name": "Google Pen Lilac", "views": 366, "purchases": 36, "conv": 0.0984, "cluster": "Hidden Gem"}, {"name": "Google Sunnyvale Campus Ladies Tee", "views": 359, "purchases": 20, "conv": 0.0557, "cluster": "Hidden Gem"}, {"name": "Mommy Works at Google Book", "views": 355, "purchases": 25, "conv": 0.0704, "cluster": "Hidden Gem"}, {"name": "Google SF Campus Unisex Tee", "views": 347, "purchases": 15, "conv": 0.0432, "cluster": "Hidden Gem"}, {"name": "Google Beekeepers Onesie Pink", "views": 346, "purchases": 20, "conv": 0.0578, "cluster": "Hidden Gem"}, {"name": "Stan and Friends Youth Tee Green", "views": 345, "purchases": 13, "conv": 0.0377, "cluster": "Hidden Gem"}, {"name": "Google Austin Campus Mug", "views": 336, "purchases": 73, "conv": 0.2173, "cluster": "Hidden Gem"}, {"name": "Google Sunnyvale Campus Bottle", "views": 329, "purchases": 13, "conv": 0.0395, "cluster": "Hidden Gem"}, {"name": "Google Pen Neon Coral", "views": 304, "purchases": 32, "conv": 0.1053, "cluster": "Hidden Gem"}, {"name": "Google LA Campus Mug", "views": 294, "purchases": 53, "conv": 0.1803, "cluster": "Hidden Gem"}, {"name": "Android Geek Pin", "views": 294, "purchases": 6, "conv": 0.0204, "cluster": "Hidden Gem"}, {"name": "Google SF Campus Bottle", "views": 291, "purchases": 31, "conv": 0.1065, "cluster": "Hidden Gem"}, {"name": "Google Seattle Campus Mug", "views": 285, "purchases": 62, "conv": 0.2175, "cluster": "Hidden Gem"}, {"name": "Google Beekeepers Toddler Tee Pink", "views": 276, "purchases": 15, "conv": 0.0543, "cluster": "Hidden Gem"}, {"name": "Google Austin Campus Unisex Tee", "views": 275, "purchases": 7, "conv": 0.0255, "cluster": "Hidden Gem"}, {"name": "Google Women's Ringer Tee", "views": 274, "purchases": 1, "conv": 0.0036, "cluster": "Long-tail Underperformer"}, {"name": "Google Chicago Campus Mug", "views": 273, "purchases": 55, "conv": 0.2015, "cluster": "Hidden Gem"}, {"name": "Android Pocket Tee Green", "views": 270, "purchases": 22, "conv": 0.0815, "cluster": "Hidden Gem"}, {"name": "Google Sunnyvale Campus Tote", "views": 266, "purchases": 7, "conv": 0.0263, "cluster": "Hidden Gem"}, {"name": "Google Color Block Tote White", "views": 261, "purchases": 0, "conv": 0.0, "cluster": "Long-tail Underperformer"}, {"name": "Google Keychain", "views": 259, "purchases": 68, "conv": 0.2625, "cluster": "Hidden Gem"}, {"name": "Google Recycled Notebook Set Natural", "views": 257, "purchases": 9, "conv": 0.035, "cluster": "Hidden Gem"}, {"name": "Google PNW Campus Zip Hoodie", "views": 253, "purchases": 27, "conv": 0.1067, "cluster": "Hidden Gem"}, {"name": "Google Cork Journal", "views": 251, "purchases": 19, "conv": 0.0757, "cluster": "Hidden Gem"}, {"name": "Google PNW Campus Mug", "views": 247, "purchases": 57, "conv": 0.2308, "cluster": "Hidden Gem"}, {"name": "#IamRemarkable Tote", "views": 243, "purchases": 6, "conv": 0.0247, "cluster": "Hidden Gem"}, {"name": "Stan and Friends Toddler Tee Green", "views": 241, "purchases": 23, "conv": 0.0954, "cluster": "Hidden Gem"}, {"name": "Google Cambridge Campus Lapel Pin", "views": 239, "purchases": 5, "conv": 0.0209, "cluster": "Hidden Gem"}, {"name": "Google Totepak", "views": 226, "purchases": 7, "conv": 0.031, "cluster": "Hidden Gem"}, {"name": "Google Women's Short Sleeve Hero Dark Grey", "views": 225, "purchases": 0, "conv": 0.0, "cluster": "Long-tail Underperformer"}, {"name": "Google Bot", "views": 225, "purchases": 37, "conv": 0.1644, "cluster": "Hidden Gem"}, {"name": "Google Chicago Campus Unisex Tee", "views": 222, "purchases": 15, "conv": 0.0676, "cluster": "Hidden Gem"}, {"name": "Google SF Campus Ladies Tee", "views": 220, "purchases": 15, "conv": 0.0682, "cluster": "Hidden Gem"}, {"name": "Google LA Campus Unisex Tee", "views": 216, "purchases": 34, "conv": 0.1574, "cluster": "Hidden Gem"}, {"name": "Google Mural Tote", "views": 214, "purchases": 10, "conv": 0.0467, "cluster": "Hidden Gem"}, {"name": "Google Maps Pin", "views": 208, "purchases": 23, "conv": 0.1106, "cluster": "Hidden Gem"}, {"name": "Google Lapel Pin", "views": 207, "purchases": 39, "conv": 0.1884, "cluster": "Hidden Gem"}, {"name": "Google Boulder Campus Mug", "views": 206, "purchases": 32, "conv": 0.1553, "cluster": "Hidden Gem"}, {"name": "Google Austin Campus Bottle", "views": 200, "purchases": 15, "conv": 0.075, "cluster": "Hidden Gem"}, {"name": "Google Chicago Campus Bottle", "views": 193, "purchases": 15, "conv": 0.0777, "cluster": "Hidden Gem"}, {"name": "Google SF Campus Lapel Pin", "views": 193, "purchases": 13, "conv": 0.0674, "cluster": "Hidden Gem"}, {"name": "Google Mountain View Tee Red", "views": 192, "purchases": 1, "conv": 0.0052, "cluster": "Long-tail Underperformer"}, {"name": "Google Austin Campus Ladies Tee", "views": 189, "purchases": 10, "conv": 0.0529, "cluster": "Hidden Gem"}, {"name": "Google Yellow YoYo", "views": 183, "purchases": 18, "conv": 0.0984, "cluster": "Hidden Gem"}, {"name": "Google PNW Campus Unisex Tee", "views": 182, "purchases": 17, "conv": 0.0934, "cluster": "Hidden Gem"}, {"name": "Google Pen Red", "views": 180, "purchases": 28, "conv": 0.1556, "cluster": "Hidden Gem"}, {"name": "Google LA Campus Bottle", "views": 174, "purchases": 11, "conv": 0.0632, "cluster": "Hidden Gem"}, {"name": "Google Kirkland Campus Mug", "views": 170, "purchases": 19, "conv": 0.1118, "cluster": "Hidden Gem"}, {"name": "Google Beekeepers Youth Tee Pink", "views": 162, "purchases": 11, "conv": 0.0679, "cluster": "Hidden Gem"}, {"name": "Google Boulder Campus Unisex Tee", "views": 158, "purchases": 19, "conv": 0.1203, "cluster": "Hidden Gem"}, {"name": "Google SF Campus Tote", "views": 156, "purchases": 35, "conv": 0.2244, "cluster": "Hidden Gem"}, {"name": "Google Seattle Campus Unisex Tee", "views": 152, "purchases": 2, "conv": 0.0132, "cluster": "Long-tail Underperformer"}, {"name": "Google Chicago Campus Ladies Tee", "views": 150, "purchases": 9, "conv": 0.06, "cluster": "Hidden Gem"}, {"name": "Google PNW Campus Bottle", "views": 149, "purchases": 9, "conv": 0.0604, "cluster": "Hidden Gem"}, {"name": "Google Austin Campus Tote", "views": 146, "purchases": 17, "conv": 0.1164, "cluster": "Hidden Gem"}, {"name": "Google Large White Gift Bag 5/PK", "views": 141, "purchases": 10, "conv": 0.0709, "cluster": "Hidden Gem"}, {"name": "Google Red YoYo", "views": 135, "purchases": 22, "conv": 0.163, "cluster": "Hidden Gem"}, {"name": "Google Small White Gift Bag 5/PK", "views": 133, "purchases": 9, "conv": 0.0677, "cluster": "Hidden Gem"}, {"name": "Google Boulder Campus Bottle", "views": 131, "purchases": 4, "conv": 0.0305, "cluster": "Hidden Gem"}, {"name": "Android Iconic 4\" Decal", "views": 130, "purchases": 0, "conv": 0.0, "cluster": "Long-tail Underperformer"}, {"name": "Google Chicago Campus Tote", "views": 129, "purchases": 9, "conv": 0.0698, "cluster": "Hidden Gem"}, {"name": "Google LA Campus Lapel Pin", "views": 127, "purchases": 11, "conv": 0.0866, "cluster": "Hidden Gem"}, {"name": "Google Emoji Magnet Set", "views": 127, "purchases": 35, "conv": 0.2756, "cluster": "Hidden Gem"}, {"name": "Google LA Campus Ladies Tee", "views": 124, "purchases": 12, "conv": 0.0968, "cluster": "Hidden Gem"}, {"name": "Google Felt Strap Keyring", "views": 123, "purchases": 13, "conv": 0.1057, "cluster": "Hidden Gem"}, {"name": "Google Confetti Tote White", "views": 116, "purchases": 0, "conv": 0.0, "cluster": "Long-tail Underperformer"}, {"name": "Google Blue YoYo", "views": 111, "purchases": 21, "conv": 0.1892, "cluster": "Hidden Gem"}, {"name": "Google Light Pen Yellow", "views": 111, "purchases": 1, "conv": 0.009, "cluster": "Long-tail Underperformer"}, {"name": "Google Medium Pet Collar (Blue/Green)", "views": 110, "purchases": 6, "conv": 0.0545, "cluster": "Hidden Gem"}, {"name": "Google Seattle Campus Ladies Tee", "views": 108, "purchases": 5, "conv": 0.0463, "cluster": "Hidden Gem"}, {"name": "Google Boulder Campus Ladies Tee", "views": 105, "purchases": 9, "conv": 0.0857, "cluster": "Hidden Gem"}, {"name": "Google Seattle Campus Lapel Pin", "views": 101, "purchases": 7, "conv": 0.0693, "cluster": "Hidden Gem"}, {"name": "Google PNW Campus Lapel Pin", "views": 100, "purchases": 7, "conv": 0.07, "cluster": "Hidden Gem"}, {"name": "Google Austin Campus Lapel Pin", "views": 98, "purchases": 12, "conv": 0.1224, "cluster": "Hidden Gem"}, {"name": "Google PNW Campus Tote", "views": 95, "purchases": 6, "conv": 0.0632, "cluster": "Hidden Gem"}, {"name": "Google Large Pet Collar (Blue/Green)", "views": 94, "purchases": 6, "conv": 0.0638, "cluster": "Hidden Gem"}, {"name": "Google Kirkland Campus Unisex Tee", "views": 94, "purchases": 20, "conv": 0.2128, "cluster": "Hidden Gem"}, {"name": "Google LA Campus Tote", "views": 92, "purchases": 15, "conv": 0.163, "cluster": "Hidden Gem"}, {"name": "Google Medium Pet Collar (Red/Yellow)", "views": 92, "purchases": 5, "conv": 0.0543, "cluster": "Hidden Gem"}, {"name": "Google Boulder Campus Lapel Pin", "views": 91, "purchases": 4, "conv": 0.044, "cluster": "Hidden Gem"}, {"name": "Google Mountain View Campus Mug", "views": 87, "purchases": 0, "conv": 0.0, "cluster": "Long-tail Underperformer"}, {"name": "Google Large Pet Leash (Blue/Green)", "views": 86, "purchases": 7, "conv": 0.0814, "cluster": "Hidden Gem"}, {"name": "Google Medium Pet Leash (Blue/Green)", "views": 84, "purchases": 7, "conv": 0.0833, "cluster": "Hidden Gem"}, {"name": "Google Medium Pet Leash (Red/Yellow)", "views": 81, "purchases": 2, "conv": 0.0247, "cluster": "Hidden Gem"}, {"name": "Google Chicago Campus Lapel Pin", "views": 71, "purchases": 7, "conv": 0.0986, "cluster": "Hidden Gem"}, {"name": "Google Large Pet Collar (Red/Yellow)", "views": 69, "purchases": 4, "conv": 0.058, "cluster": "Hidden Gem"}, {"name": "Google Kirkland Campus Ladies Tee", "views": 67, "purchases": 9, "conv": 0.1343, "cluster": "Hidden Gem"}, {"name": "Google Large Pet Leash (Red/Yellow)", "views": 67, "purchases": 7, "conv": 0.1045, "cluster": "Hidden Gem"}, {"name": "Google SF Campus Mug", "views": 63, "purchases": 4, "conv": 0.0635, "cluster": "Hidden Gem"}, {"name": "Google Felt Mason Jar", "views": 63, "purchases": 0, "conv": 0.0, "cluster": "Long-tail Underperformer"}, {"name": "Google Tudes Thermal Bottle", "views": 59, "purchases": 2, "conv": 0.0339, "cluster": "Hidden Gem"}, {"name": "Google Mountain View Campus Bottle", "views": 56, "purchases": 0, "conv": 0.0, "cluster": "Long-tail Underperformer"}, {"name": "Google Kirkland Campus Lapel Pin", "views": 54, "purchases": 2, "conv": 0.037, "cluster": "Hidden Gem"}, {"name": "Android Flex Journal White", "views": 53, "purchases": 2, "conv": 0.0377, "cluster": "Hidden Gem"}, {"name": "Google PNW Campus Ladies Tee", "views": 52, "purchases": 6, "conv": 0.1154, "cluster": "Hidden Gem"}, {"name": "Google Mountain View Campus Tote", "views": 39, "purchases": 0, "conv": 0.0, "cluster": "Long-tail Underperformer"}, {"name": "Google Boulder Campus Tote", "views": 35, "purchases": 6, "conv": 0.1714, "cluster": "Hidden Gem"}, {"name": "Gift Card - $25.00", "views": 35, "purchases": 6, "conv": 0.1714, "cluster": "Hidden Gem"}, {"name": "Google Green YoYo", "views": 34, "purchases": 0, "conv": 0.0, "cluster": "Long-tail Underperformer"}, {"name": "White Google Cloud Tumbler", "views": 33, "purchases": 0, "conv": 0.0, "cluster": "Long-tail Underperformer"}, {"name": "Android Cardboard Sculpture", "views": 33, "purchases": 0, "conv": 0.0, "cluster": "Long-tail Underperformer"}, {"name": "Google Charcoal Unisex Badge Tee", "views": 32, "purchases": 0, "conv": 0.0, "cluster": "Long-tail Underperformer"}, {"name": "Gift Card - $50.00", "views": 32, "purchases": 3, "conv": 0.0938, "cluster": "Hidden Gem"}, {"name": "Google Grey Women's Tee", "views": 30, "purchases": 0, "conv": 0.0, "cluster": "Long-tail Underperformer"}];
+const CLUSTER_STATS = [{"cluster": "Traffic-Heavy Low-Convert", "count": 157, "views": 742182, "purchases": 5205, "avg_conv": 0.007}, {"cluster": "Star Performer", "count": 53, "views": 145286, "purchases": 4025, "avg_conv": 0.0277}, {"cluster": "Hidden Gem", "count": 155, "views": 63311, "purchases": 3468, "avg_conv": 0.0548}, {"cluster": "Long-tail Underperformer", "count": 48, "views": 25729, "purchases": 180, "avg_conv": 0.007}];
+const FUNNEL = {"steps": ["view_item", "add_to_cart", "begin_checkout", "purchase"], "new": [45852, 7323, 5199, 1493], "returning": [15400, 5222, 4516, 2926], "newDrops": [0.8403, 0.29, 0.7128], "retDrops": [0.6609, 0.1352, 0.3521], "newConv": 0.0326, "retConv": 0.19, "newRevPerUser": 0.26, "retRevPerUser": 5.9};
+const CLUSTER_COLOR = {"Traffic-Heavy Low-Convert": "var(--series-2)", "Star Performer": "var(--series-1)", "Hidden Gem": "var(--series-3)", "Long-tail Underperformer": "var(--series-grey)"};
+const CLUSTER_LABEL = {"Traffic-Heavy Low-Convert": "Traffic-Heavy, Low-Convert (high traffic, low conversion)", "Star Performer": "Star Performer (high traffic, high conversion)", "Hidden Gem": "Hidden Gem (low traffic, high conversion)", "Long-tail Underperformer": "Long-tail Underperformer (low traffic, low conversion)"};
+const TOTAL_VIEWS = 976508;
+const TOTAL_PURCHASES = 12878;
+
+const tip = document.getElementById('tip');
+function showTip(evt, html) {
+  tip.innerHTML = html;
+  tip.style.opacity = 1;
+  const rect = document.body.getBoundingClientRect();
+  tip.style.left = (evt.pageX) + 'px';
+  tip.style.top = (evt.pageY - 12) + 'px';
+}
+function hideTip() { tip.style.opacity = 0; }
+
+const svgNS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs) {
+  const e = document.createElementNS(svgNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  return e;
+}
+function fmtPct(x, d) { return (x*100).toFixed(d===undefined?1:d) + '%'; }
+function fmtNum(x) { return x.toLocaleString('en-US'); }
+
+// ---------- Channel revenue bar chart ----------
+(function() {
+  const el = document.getElementById('channel-revenue-chart');
+  const maxRev = Math.max(...CHANNELS.map(c => c.revenue));
+  CHANNELS.forEach(c => {
+    const row = document.createElement('div');
+    row.className = 'bar-row';
+    row.innerHTML = `
+      <div class="bar-label">${c.name}</div>
+      <div class="bar-track"><div class="bar-fill" style="width:${(c.revenue/maxRev*100).toFixed(1)}%"></div></div>
+      <div class="bar-value">$${fmtNum(c.revenue)}</div>
+    `;
+    el.appendChild(row);
+  });
+})();
+
+// ---------- Channel conversion scatter (7 points, direct labels) ----------
+(function() {
+  const svg = document.getElementById('channel-scatter');
+  const W = 860, H = 320, PAD = { l: 60, r: 30, t: 20, b: 44 };
+  const plotW = W - PAD.l - PAD.r, plotH = H - PAD.t - PAD.b;
+  const xMax = 22000, yMin = 0.05, yMax = 0.10;
+  const x = v => PAD.l + (v/xMax)*plotW;
+  const y = c => PAD.t + (yMax-c)/(yMax-yMin)*plotH;
+
+  // gridlines + y ticks
+  [0.05,0.06,0.07,0.08,0.09,0.10].forEach(v => {
+    const gy = y(v);
+    svg.appendChild(el('line', {x1:PAD.l, x2:W-PAD.r, y1:gy, y2:gy, class:'grid-line'}));
+    const t = el('text', {x:PAD.l-10, y:gy+4, class:'axis-label', 'text-anchor':'end'});
+    t.textContent = fmtPct(v,0);
+    svg.appendChild(t);
+  });
+  // x ticks
+  [0,5000,10000,15000,20000].forEach(v => {
+    const gx = x(v);
+    const t = el('text', {x:gx, y:H-PAD.b+20, class:'axis-label', 'text-anchor':'middle'});
+    t.textContent = fmtNum(v);
+    svg.appendChild(t);
+  });
+  svg.appendChild(el('line', {x1:PAD.l, x2:PAD.l, y1:PAD.t, y2:H-PAD.b, class:'axis-line'}));
+  svg.appendChild(el('line', {x1:PAD.l, x2:W-PAD.r, y1:H-PAD.b, y2:H-PAD.b, class:'axis-line'}));
+
+  const ytitle = el('text', {x:-(PAD.t+plotH/2), y:16, class:'axis-title', 'text-anchor':'middle', transform:'rotate(-90)'});
+  ytitle.textContent = 'Conversion rate (any purchase)';
+  svg.appendChild(ytitle);
+  const xtitle = el('text', {x:PAD.l+plotW/2, y:H-4, class:'axis-title', 'text-anchor':'middle'});
+  xtitle.textContent = 'Users who viewed a product via this channel';
+  svg.appendChild(xtitle);
+
+  // hand-tuned label placement to avoid collisions among the 5 channels
+  // clustered in the 1,900-5,800 views / 6.6-7.2% conversion zone
+  const LABEL_OVERRIDE = {
+    "(other) / organic":            { dy: 38,  anchor: 'start', dx: -6 },
+    "google / cpc":                 { dy: -50, anchor: 'middle', dx: 0 },
+    "shop.googlemerchandisestore":  { dy: -20, anchor: 'middle', dx: 0 },
+    "(other) / referral":           { dy: -20, anchor: 'end',    dx: -10 },
+    "(other) / (other)":            { dy: 38,  anchor: 'middle', dx: 0 },
+    "(direct) / (none)":            { dy: -20, anchor: 'middle', dx: 0 },
+    "google / organic":             { dy: -20, anchor: 'end',    dx: -6 },
+  };
+
+  CHANNELS.forEach(c => {
+    const cx = x(c.views), cy = y(c.conv);
+    const dot = el('circle', {cx, cy, r:6, fill:'var(--series-1)', stroke:'var(--surface)', 'stroke-width':2, style:'cursor:pointer'});
+    dot.addEventListener('mousemove', e => showTip(e, `<b>${c.name}</b><br>${fmtNum(c.views)} viewers &middot; ${fmtNum(c.purchasers)} purchasers<br>conversion: ${fmtPct(c.conv,2)}<br>revenue: $${fmtNum(c.revenue)}`));
+    dot.addEventListener('mouseleave', hideTip);
+    svg.appendChild(dot);
+
+    const ov = LABEL_OVERRIDE[c.name] || { dy: -12, anchor: 'middle', dx: 0 };
+    const lx = cx + ov.dx;
+    const label = el('text', {x:lx, y:cy+ov.dy, class:'axis-label', 'text-anchor':ov.anchor, style:'font-size:11.5px; fill:var(--text-secondary); font-weight:600;'});
+    label.textContent = c.name;
+    svg.appendChild(label);
+    const label2 = el('text', {x:lx, y:cy+ov.dy+13, class:'axis-label', 'text-anchor':ov.anchor, style:'font-size:11px;'});
+    label2.textContent = fmtPct(c.conv,2);
+    svg.appendChild(label2);
+  });
+})();
+
+// ---------- Cluster stat tiles ----------
+(function() {
+  const wrap = document.getElementById('cluster-stats');
+  const order = ["Traffic-Heavy Low-Convert","Star Performer","Hidden Gem","Long-tail Underperformer"];
+  order.forEach(key => {
+    const s = CLUSTER_STATS.find(c => c.cluster === key);
+    const tile = document.createElement('div');
+    tile.className = 'stat-tile';
+    tile.style.borderLeft = `3px solid ${CLUSTER_COLOR[key]}`;
+    tile.innerHTML = `
+      <div class="stat-label">${CLUSTER_LABEL[key]}</div>
+      <div class="stat-value">${s.count} products</div>
+      <div class="stat-sub">${fmtNum(s.views)} views &middot; ${fmtPct(s.avg_conv,2)} avg conv</div>
+    `;
+    wrap.appendChild(tile);
+  });
+})();
+
+// ---------- Product scatter (413 points, log-x, 4 colors) ----------
+(function() {
+  const svg = document.getElementById('product-scatter');
+  const W = 900, H = 480, PAD = { l: 56, r: 24, t: 20, b: 46 };
+  const plotW = W - PAD.l - PAD.r, plotH = H - PAD.t - PAD.b;
+  const xMin = 25, xMax = 16000, yMax = 0.30;
+  const lx = v => Math.log10(v);
+  const x = v => PAD.l + (lx(v)-lx(xMin))/(lx(xMax)-lx(xMin))*plotW;
+  const y = c => PAD.t + (yMax-c)/yMax*plotH;
+
+  [0,0.1,0.2,0.3].forEach(v => {
+    const gy = y(v);
+    svg.appendChild(el('line', {x1:PAD.l, x2:W-PAD.r, y1:gy, y2:gy, class:'grid-line'}));
+    const t = el('text', {x:PAD.l-10, y:gy+4, class:'axis-label', 'text-anchor':'end'});
+    t.textContent = fmtPct(v,0);
+    svg.appendChild(t);
+  });
+  [30,100,300,1000,3000,10000].forEach(v => {
+    const gx = x(v);
+    svg.appendChild(el('line', {x1:gx, x2:gx, y1:PAD.t, y2:H-PAD.b, class:'grid-line'}));
+    const t = el('text', {x:gx, y:H-PAD.b+20, class:'axis-label', 'text-anchor':'middle'});
+    t.textContent = fmtNum(v);
+    svg.appendChild(t);
+  });
+  svg.appendChild(el('line', {x1:PAD.l, x2:PAD.l, y1:PAD.t, y2:H-PAD.b, class:'axis-line'}));
+  svg.appendChild(el('line', {x1:PAD.l, x2:W-PAD.r, y1:H-PAD.b, y2:H-PAD.b, class:'axis-line'}));
+
+  const ytitle = el('text', {x:-(PAD.t+plotH/2), y:16, class:'axis-title', 'text-anchor':'middle', transform:'rotate(-90)'});
+  ytitle.textContent = 'Same-item conversion rate';
+  svg.appendChild(ytitle);
+  const xtitle = el('text', {x:PAD.l+plotW/2, y:H-4, class:'axis-title', 'text-anchor':'middle'});
+  xtitle.textContent = 'Product page viewers (log scale)';
+  svg.appendChild(xtitle);
+
+  // draw long-tail underperformer + traffic-heavy first (background), star + hidden gem on top for visibility
+  const drawOrder = ["Long-tail Underperformer","Traffic-Heavy Low-Convert","Star Performer","Hidden Gem"];
+  drawOrder.forEach(cluster => {
+    PRODUCTS.filter(p => p.cluster === cluster).forEach(p => {
+      const cx = x(Math.max(p.views, xMin)), cy = y(Math.min(p.conv, yMax));
+      const dot = el('circle', {cx, cy, r:3.6, fill:CLUSTER_COLOR[cluster], 'fill-opacity':0.72, style:'cursor:pointer'});
+      dot.addEventListener('mousemove', e => showTip(e, `<b>${p.name}</b><br>${fmtNum(p.views)} views &middot; ${fmtNum(p.purchases)} purchases<br>conv: ${fmtPct(p.conv,2)}<br>${CLUSTER_LABEL[cluster]}`));
+      dot.addEventListener('mouseleave', hideTip);
+      svg.appendChild(dot);
+    });
+  });
+
+  // callouts for the two headline extremes
+  const maxConvP = PRODUCTS.reduce((a,b)=> b.conv>a.conv?b:a);
+  const maxViewP = PRODUCTS.reduce((a,b)=> b.views>a.views?b:a);
+  [ {p:maxConvP, dy: -14, text:`Highest conv. rate: ${maxConvP.name} (${fmtPct(maxConvP.conv,2)})`},
+    {p:maxViewP, dy: 22, text:`Highest traffic: ${maxViewP.name} (${fmtNum(maxViewP.views)} views)`} ].forEach(c => {
+    const cx = x(c.p.views), cy = y(c.p.conv);
+    svg.appendChild(el('circle', {cx, cy, r:7, fill:'none', stroke:'var(--text-primary)', 'stroke-width':1.4}));
+    // keep the label inside the plot: extend rightward near the left edge, leftward near the right edge
+    const nearLeft = cx < PAD.l + plotW*0.3;
+    const nearRight = cx > PAD.l + plotW*0.7;
+    const anchor = nearLeft ? 'start' : (nearRight ? 'end' : 'middle');
+    const dx = nearLeft ? 12 : (nearRight ? -12 : 0);
+    const label = el('text', {x:cx+dx, y:cy+c.dy, class:'axis-label', 'text-anchor':anchor, style:'font-size:11px; fill:var(--text-primary); font-weight:600;'});
+    label.textContent = c.text;
+    svg.appendChild(label);
+  });
+})();
+
+// ---------- Product legend ----------
+(function() {
+  const wrap = document.getElementById('product-legend');
+  const order = ["Traffic-Heavy Low-Convert","Star Performer","Hidden Gem","Long-tail Underperformer"];
+  order.forEach(key => {
+    const item = document.createElement('div');
+    item.className = 'legend-item';
+    item.innerHTML = `<span class="legend-swatch" style="background:${CLUSTER_COLOR[key]}"></span>${CLUSTER_LABEL[key]}`;
+    wrap.appendChild(item);
+  });
+})();
+
+// ---------- Extremes cards ----------
+(function() {
+  const wrap = document.getElementById('extremes');
+  const maxConvP = PRODUCTS.reduce((a,b)=> b.conv>a.conv?b:a);
+  const maxViewP = PRODUCTS.reduce((a,b)=> b.views>a.views?b:a);
+  wrap.innerHTML = `
+    <div class="extreme-card">
+      <div class="ex-label">Highest conversion rate (413 products)</div>
+      <div class="ex-name">${maxConvP.name}</div>
+      <div class="ex-stat">${fmtNum(maxConvP.views)} views &middot; ${fmtNum(maxConvP.purchases)} purchases &middot; ${fmtPct(maxConvP.conv,2)} conversion</div>
+    </div>
+    <div class="extreme-card">
+      <div class="ex-label">Highest traffic (413 products)</div>
+      <div class="ex-name">${maxViewP.name}</div>
+      <div class="ex-stat">${fmtNum(maxViewP.views)} views &middot; ${fmtNum(maxViewP.purchases)} purchases &middot; ${fmtPct(maxViewP.conv,2)} conversion</div>
+    </div>
+  `;
+})();
+
+// ---------- Funnel stat tiles ----------
+(function() {
+  const wrap = document.getElementById('funnel-stats');
+  wrap.innerHTML = `
+    <div class="stat-tile" style="border-left:3px solid var(--series-1)">
+      <div class="stat-label">New users: view &rarr; purchase</div>
+      <div class="stat-value">${fmtPct(FUNNEL.newConv,1)}</div>
+      <div class="stat-sub">$${FUNNEL.newRevPerUser.toFixed(2)} revenue per viewer</div>
+    </div>
+    <div class="stat-tile" style="border-left:3px solid var(--series-3)">
+      <div class="stat-label">Returning users: view &rarr; purchase</div>
+      <div class="stat-value">${fmtPct(FUNNEL.retConv,1)}</div>
+      <div class="stat-sub">$${FUNNEL.retRevPerUser.toFixed(2)} revenue per viewer</div>
+    </div>
+  `;
+})();
+
+// ---------- Funnel indexed line chart ----------
+(function() {
+  const svg = document.getElementById('funnel-chart');
+  const W = 860, H = 340, PAD = { l: 50, r: 30, t: 20, b: 50 };
+  const plotW = W - PAD.l - PAD.r, plotH = H - PAD.t - PAD.b;
+  const steps = FUNNEL.steps;
+  const newIdx = FUNNEL.new.map(v => v/FUNNEL.new[0]*100);
+  const retIdx = FUNNEL.returning.map(v => v/FUNNEL.returning[0]*100);
+
+  const x = i => PAD.l + i/(steps.length-1)*plotW;
+  const y = v => PAD.t + (100-v)/100*plotH;
+
+  [0,25,50,75,100].forEach(v => {
+    const gy = y(v);
+    svg.appendChild(el('line', {x1:PAD.l, x2:W-PAD.r, y1:gy, y2:gy, class:'grid-line'}));
+    const t = el('text', {x:PAD.l-10, y:gy+4, class:'axis-label', 'text-anchor':'end'});
+    t.textContent = v;
+    svg.appendChild(t);
+  });
+  steps.forEach((s,i) => {
+    const t = el('text', {x:x(i), y:H-PAD.b+22, class:'axis-label', 'text-anchor':'middle'});
+    t.textContent = s;
+    svg.appendChild(t);
+  });
+  svg.appendChild(el('line', {x1:PAD.l, x2:PAD.l, y1:PAD.t, y2:H-PAD.b, class:'axis-line'}));
+  svg.appendChild(el('line', {x1:PAD.l, x2:W-PAD.r, y1:H-PAD.b, y2:H-PAD.b, class:'axis-line'}));
+  const ytitle = el('text', {x:-(PAD.t+plotH/2), y:14, class:'axis-title', 'text-anchor':'middle', transform:'rotate(-90)'});
+  ytitle.textContent = 'Indexed (view_item = 100)';
+  svg.appendChild(ytitle);
+
+  function drawLine(idxArr, rawArr, color, dxSign) {
+    let path = 'M ' + idxArr.map((v,i) => `${x(i)},${y(v)}`).join(' L ');
+    svg.appendChild(el('path', {d: path, fill:'none', stroke:color, 'stroke-width':2.5, 'stroke-linecap':'round'}));
+    idxArr.forEach((v,i) => {
+      const cx = x(i), cy = y(v);
+      const dot = el('circle', {cx, cy, r:5, fill:color, stroke:'var(--surface)', 'stroke-width':2, style:'cursor:pointer'});
+      dot.addEventListener('mousemove', e => showTip(e, `<b>${steps[i]}</b><br>${fmtNum(rawArr[i])} users &middot; ${v.toFixed(1)}% of view_item`));
+      dot.addEventListener('mouseleave', hideTip);
+      svg.appendChild(dot);
+      // label every point except the first (view_item) with its own current
+      // percentage of the view_item baseline -- both cohorts are trivially
+      // 100% there, so a label adds nothing at that point
+      if (i > 0) {
+        // keep the label inside the viewBox: at the rightmost point, anchor
+        // it to the left of the dot instead of centering past the edge
+        const nearRightEdge = cx > W - PAD.r - 30;
+        const anchor = nearRightEdge ? 'end' : 'middle';
+        const labelx = nearRightEdge ? cx - 8 : cx + dxSign*22;
+        const labely = cy - 12;
+        const dlabel = el('text', {x:labelx, y:labely, class:'axis-label', 'text-anchor':anchor, style:`font-weight:700; fill:${color};`});
+        dlabel.textContent = v.toFixed(1) + '%';
+        svg.appendChild(dlabel);
+      }
+    });
+  }
+  drawLine(newIdx, FUNNEL.new, 'var(--series-1)', -1);
+  drawLine(retIdx, FUNNEL.returning, 'var(--series-3)', 1);
+})();
+
+// ---------- Funnel legend ----------
+(function() {
+  document.getElementById('funnel-legend').innerHTML = `
+    <div class="legend-item"><span class="legend-swatch" style="background:var(--series-1)"></span>New users</div>
+    <div class="legend-item"><span class="legend-swatch" style="background:var(--series-3)"></span>Returning users</div>
+  `;
+})();
+
+// ---------- Funnel table ----------
+(function() {
+  const t = document.getElementById('funnel-table');
+  const newIdx = FUNNEL.new.map(v => v/FUNNEL.new[0]*100);
+  const retIdx = FUNNEL.returning.map(v => v/FUNNEL.returning[0]*100);
+  let rows = '<tr><th>Step</th><th class="num">New users</th><th class="num">New % of view_item</th><th class="num">Returning users</th><th class="num">Returning % of view_item</th></tr>';
+  FUNNEL.steps.forEach((s,i) => {
+    rows += `<tr><td>${s}</td><td class="num">${fmtNum(FUNNEL.new[i])}</td><td class="num">${newIdx[i].toFixed(1)}%</td><td class="num">${fmtNum(FUNNEL.returning[i])}</td><td class="num">${retIdx[i].toFixed(1)}%</td></tr>`;
+  });
+  t.innerHTML = rows;
+})();
+
+// ---------- Funnel insight list ----------
+(function() {
+  const ul = document.getElementById('funnel-drop-list');
+  const newIdx = FUNNEL.new.map(v => v/FUNNEL.new[0]*100);
+  const retIdx = FUNNEL.returning.map(v => v/FUNNEL.returning[0]*100);
+  ul.innerHTML = `
+    <li>New vs. returning converting differently overall (${fmtPct(FUNNEL.newConv,1)} vs. ${fmtPct(FUNNEL.retConv,1)} view-to-purchase) isn't the surprise &mdash; returning users already trust the store and have bought before, so a higher completion rate is exactly what you'd expect.</li>
+    <li>at add_to_cart: new ${newIdx[1].toFixed(1)}% of view_item, returning ${retIdx[1].toFixed(1)}% &mdash; both cohorts lose most viewers here, which is ordinary browsing behavior.</li>
+    <li>at begin_checkout: new ${newIdx[2].toFixed(1)}%, returning ${retIdx[2].toFixed(1)}% &mdash; a further, expected thinning as people commit to buying.</li>
+    <li><b>at purchase: new ${newIdx[3].toFixed(1)}%, returning ${retIdx[3].toFixed(1)}%</b> &mdash; this is the step worth scrutinizing. For new users, only about 1 in 3.5 people who started checkout actually finish; even loyal returning users lose roughly a third. That's a much steeper loss than the earlier, self-explanatory drops.</li>
+  `;
+})();
+</script>
